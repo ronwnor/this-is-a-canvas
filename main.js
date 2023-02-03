@@ -1,14 +1,13 @@
 
 const canvas = document.getElementById("glcanvas"),
-      gl = canvas.getContext("webgl");
+    gl = canvas.getContext("webgl");
 
 
 let mousedown = false,
     zoom = 0,
     offset = {x:0, y:0};
-    zoomTarget = {x:0, y:0};
 
-const floatString = (n) => Number.isInteger(n)? n.toFixed(1) : n;
+const floatString = n => Number.isInteger(n)? n.toFixed(1) : n;
 
     canvas.addEventListener("mouseup",    () => mousedown = false);
     canvas.addEventListener("mouseleave", () => mousedown = false);
@@ -17,16 +16,14 @@ const floatString = (n) => Number.isInteger(n)? n.toFixed(1) : n;
         if(mousedown){
             offset.x += e.movementX*Math.pow(2, zoom);
             offset.y -= e.movementY*Math.pow(2, zoom);
-
-        }
-        else {
-            zoomTarget = {x: e.offsetX - 600, y:300 - e.offsetY}; 
         }
     });
     canvas.addEventListener("wheel", e => {
         zoom += e.deltaY*0.001;
-        offset.x += (zoomTarget.x*Math.pow(2, e.deltaY*0.001) - zoomTarget.x)*Math.pow(2, zoom), 
-        offset.y += (zoomTarget.y*Math.pow(2, e.deltaY*0.001) - zoomTarget.y)*Math.pow(2, zoom)
+        let x = (e.offsetX - 600)*Math.pow(2, zoom),
+            y = (300 - e.offsetY)*Math.pow(2, zoom);
+        offset.x += x*Math.pow(2, e.deltaY*0.001) - x, 
+        offset.y += y*Math.pow(2, e.deltaY*0.001) - y
     });
 
 
@@ -66,7 +63,6 @@ function loop() {
             vec2 z  = vec2(0);
             vec3 col = vec3(0);
             vec2 offset = vec2(${floatString(offset.x    )}, ${floatString(offset.y    )});
-            vec2 target = vec2(${floatString(zoomTarget.x)}, ${floatString(zoomTarget.y)});
 
             vec2 uv = (gl_FragCoord.xy - vec2(600, 300))*pow(2.0, ${floatString(zoom)});
             uv -= offset;
