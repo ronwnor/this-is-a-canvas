@@ -75,12 +75,13 @@ function loop() {
             uv -= vec2(.5, .0);
 
 
-            for(float i=0.0; i<64.0; i++){
+            for(float i=0.0; i<1024.0; i++){
                 
                 z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + uv;
                 
                 if(z.x > 2. && col == vec3(0)){
                     col += i/64.;
+                    break;
                 }
             }
 
