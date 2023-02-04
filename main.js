@@ -184,6 +184,8 @@ function loop() {
 
     // change canvas if viewport got resize'd
     if(canvas.width != canvas.clientWidth){
+        offset.x *= canvas.clientWidth/canvas.width;
+        offset.y *= canvas.clientHeight/canvas.height;
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
