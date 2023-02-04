@@ -24,7 +24,7 @@ document.getElementById("download-button").onclick = () =>
     capture = true;
 // creates a url with some query parameters
 const generateURL = () => 
-    "https://ronwnor.github.io/this-is-a-canvas?"+[offset.x, offset.y, zoom].join();
+    "https://ronwnor.github.io/this-is-a-canvas?"+[offset.x/canvas.width, offset.y/canvas.height, zoom].join();
 
 // copies above url to clipboard
 document.getElementById("share-button").onclick = () => {
@@ -41,8 +41,8 @@ document.getElementById("share-button").onclick = () => {
 if(document.URL.split`?`[1] != null){
 
     const params = document.URL.split`?`[1].split`,`;
-    offset.x = Number(params[0]);
-    offset.y = Number(params[1]);
+    offset.x = Number(params[0])*canvas.width;
+    offset.y = Number(params[1])*canvas.height;
     zoom     = Number(params[2]);
 }
 
