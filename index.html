@@ -19,9 +19,12 @@
 <body>
     <style>
         body{
-            background-color: #222;
+            display: flex;
+            flex-direction: column;
             margin: 0;
-            padding: 20px;
+            padding-left: 20vw;
+            padding-right: 20vw;
+            background-color: #222;
             color:#fff;
             text-align: center;
             font-family: sans-serif;
@@ -31,15 +34,82 @@
         }
         h1{
             font-weight: lighter;
+            margin: 20px 0 0;
+        }
+
+        p{
+            margin: 20px;
         }
 
         #glcanvas{
             background-color: #fff;
+            width: 60vw;
+            height: calc(60vw * 9/16);
             display: block;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 50px;
+            margin-top: 30px;
             box-shadow: 0px 0px 50px #555;
+        }
+        #buttons-wrapper{
+            display: inline-block;
+            margin-right: 0;
+            margin-left: auto;
+            margin-top: 10px;
+        }
+        button{
+            background-color: transparent;
+            width: 180px;
+            height: 50px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #fff2;
+            border: 1px solid white;
+            color: white;
+            font-size: large;
+            font-weight: lighter;
+            transition: 0.2s;
+        }
+        button:hover{
+            box-shadow: 0px 0px 10px #fff8;
+            background-color: #555;
+            cursor:pointer;
+        }
+        #toast{
+            visibility: hidden;
+            left: 50%;
+            transform: translate(-50%, 0);
+            background-color: #111;
+            border-radius: 5px;
+            padding: 10px 20px;
+            position: fixed;
+            z-index: 1;
+            bottom: 30px;
+            font-size: small;
+            letter-spacing: normal;
+        }
+
+        #toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.3s, fadeout 0.5s 2s;
+            animation: fadein 0.3s, fadeout 0.5s 2s;
+        }
+
+        @-webkit-keyframes fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
         }
         #sauce{
             letter-spacing: normal;
@@ -52,7 +122,12 @@
     </style>
     <h1>THIS</h1>
     <p>is a canvas.</p>
-    <canvas id="glcanvas" width="1200" height="600"></canvas>
+    <canvas id="glcanvas" width="1200" height="600"> lol your device doesn't support webgl </canvas>
+    <div id="buttons-wrapper">
+        <button id="share-button">share</button>
+        <button id="download-button">download png</button>
+    </div>
+    <div id="toast">copied url to clipboard!</div>
     <p id="sauce">ronwnor#6285</p>
 </body>
 </html>
