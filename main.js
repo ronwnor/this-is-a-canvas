@@ -2,32 +2,75 @@
 const canvas = document.getElementById("glcanvas"),
     gl = canvas.getContext("webgl");
 
-
+// some variables 
 let mousedown = false,
+    capture = false,
     zoom = 0,
     offset = {x:0, y:0};
 
+// screenshot function
+const saveBlob = (blob, fileName) => {
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    document.body.appendChild(a);
+
+    a.href = window.URL.createObjectURL(blob);
+    a.download = fileName;
+    a.click();
+    a.remove();
+}
+// downloads a png
+document.getElementById("download-button").onclick = () =>
+    capture = true;
+// creates a url with some query parameters
+const generateURL = () => 
+    "https://ronwnor.github.io/this-is-a-canvas?"+[offset.x, offset.y, zoom].join();
+
+// copies above url to clipboard
+document.getElementById("share-button").onclick = () => {
+    
+    const url = generateURL();
+    navigator.clipboard.writeText(url);
+
+    const toast = document.getElementById("toast");
+    toast.className = "show";
+    setTimeout(() => toast.className = "", 2500);
+}
+
+// retrieves the parameters if they exist
+if(document.URL.split`?`[1] != null){
+
+    const params = document.URL.split`?`[1].split`,`;
+    offset.x = Number(params[0]);
+    offset.y = Number(params[1]);
+    zoom     = Number(params[2]);
+}
+
+
+// converts js numbers to glsl-recognizable floats: 3.14 => 3.14, 68 => 68.0 
 const floatString = n => Number.isInteger(n)? n.toFixed(1) : n;
 
-    canvas.addEventListener("mouseup",    () => mousedown = false);
-    canvas.addEventListener("mouseleave", () => mousedown = false);
-    canvas.addEventListener("mousedown",  () => mousedown = true );
-    // if the mouse is down (is dragging the canvas), add the mouse's Δxy to the offset.
-    canvas.addEventListener("mousemove", e => {
-        if(mousedown){
-            offset.x += e.movementX*Math.pow(2, zoom);
-            offset.y -= e.movementY*Math.pow(2, zoom);
-        }
-    });
-    // on scroll: 
-    canvas.addEventListener("wheel", e => {
-        zoom += e.deltaY*0.001;
-        let x = (e.offsetX - 600)*Math.pow(2, zoom),
-            y = (300 - e.offsetY)*Math.pow(2, zoom);
+// some event listeneres
+canvas.addEventListener("mouseup",    () => mousedown = false);
+canvas.addEventListener("mouseleave", () => mousedown = false);
+canvas.addEventListener("mousedown",  () => mousedown = true );
 
-        offset.x += x*Math.pow(2, e.deltaY*0.001) - x, 
-        offset.y += y*Math.pow(2, e.deltaY*0.001) - y
-    });
+// if the mouse is down (you're dragging the canvas), add the mouse's Δxy to the offset.
+canvas.addEventListener("mousemove", e => {
+    if(mousedown){
+        offset.x += e.movementX*Math.pow(2, zoom);
+        offset.y -= e.movementY*Math.pow(2, zoom);
+    }
+});
+// on scroll: 
+canvas.addEventListener("wheel", e => {
+    zoom += e.deltaY*0.001;
+    let x = (e.offsetX - canvas.width/2)*Math.pow(2, zoom),
+        y = (canvas.height/2 - e.offsetY)*Math.pow(2, zoom);
+
+    offset.x += x*Math.pow(2, e.deltaY*0.001) - x, 
+    offset.y += y*Math.pow(2, e.deltaY*0.001) - y
+});
 
 
 let vertexShader, fragmentShader, program, verts;
@@ -35,6 +78,7 @@ let vertexShader, fragmentShader, program, verts;
 init();
 
 function init() {
+
     // default bg color ig
     gl.clearColor(1.0, 0.0, 1.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -50,14 +94,15 @@ function init() {
              gl_Position = vec4(pos, 0.0, 1.0);
          }
          `);
-     gl.compileShader(vertexShader);
+    gl.compileShader(vertexShader);
 
-         // fragment shader, aka the fun part
+    // fragment shader, aka the fun part
     gl.shaderSource(fragmentShader,
 
     `precision highp float;
     #define TAU 6.28
 
+    uniform highp vec2 resolution;
     uniform highp vec2 offset;
     uniform highp float zoom;
 
@@ -70,15 +115,15 @@ function init() {
     
     void main(){
 
-        vec2 uv = (gl_FragCoord.xy-vec2(600,300))*pow(2.,zoom)/300.;
+        vec2 uv = 2.*(gl_FragCoord.xy-resolution*0.5)*pow(2.,zoom)/resolution.y;
 
         float col = 0.0;
 
-        vec2 z0 = -offset/300.;
+        vec2 z0 = -2.*offset/resolution.y;
         vec2 z = vec2(0);
         vec2 h = vec2(0);
 
-        float maxIterations = 20.-20.*zoom;
+        float maxIterations = 24.-24.*zoom;
 
         for(float i=0.; i<2048.; i++){
             
@@ -102,7 +147,7 @@ function init() {
         gl_FragColor = vec4(0.5 - 0.5*sin(TAU*(-.24+col+.4+vec3(.0,.1,.2))), 1.0);
     }
     `);
-gl.compileShader(fragmentShader);
+    gl.compileShader(fragmentShader);
 
     // some shit I don't really understand 
     program = gl.createProgram();
@@ -125,6 +170,10 @@ gl.compileShader(fragmentShader);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
 
+    // uuh triangles idk
+    program.position = gl.getAttribLocation(program, "pos");
+    gl.enableVertexAttribArray(program.position);
+    gl.vertexAttribPointer(program.position, 2, gl.FLOAT, false, 0, 0);
     
     gl.useProgram(program);
 
@@ -133,19 +182,28 @@ gl.compileShader(fragmentShader);
 }
 function loop() {
 
-    // updates the offset and zoom
-    program.position = gl.getUniformLocation(program, "offset");
-    gl.uniform2fv(program.position, [offset.x, offset.y]);
-    program.position = gl.getUniformLocation(program, "zoom");
-    gl.uniform1fv(program.position, [zoom]);
+    // change canvas if viewport got resize'd
+    if(canvas.width != canvas.clientWidth){
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
 
-    // uuh triangles idk
-    program.position = gl.getAttribLocation(program, "pos");
-    gl.enableVertexAttribArray(program.position);
-    gl.vertexAttribPointer(program.position, 2, gl.FLOAT, false, 0, 0);
+    // update offset and zoom
+    gl.uniform2fv(gl.getUniformLocation(program, "offset"), [offset.x, offset.y]);
+    gl.uniform1fv(gl.getUniformLocation(program, "zoom"), [zoom]);
+    gl.uniform2fv(gl.getUniformLocation(program, "resolution"), [canvas.width, canvas.height]);
 
-    // TRIANGLES
+    //               TRIANGLES
     gl.drawArrays(gl.TRIANGLES,0, verts.length/2);
+
+    // save to file 
+    if(capture){
+        capture = false;
+        canvas.toBlob(blob => {
+            saveBlob(blob, "mandelborb.png");
+        })
+    }
 
     // loop
     requestAnimationFrame(loop);
