@@ -1,133 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <meta property="og:title" content="webgl experiment">
-    <meta name="twitter:title" content="webgl experiment">
-
-    <meta name="description" content="mandelborb mandelborb">
-    <meta property="og:description" content="mandelborb mandelborb">
-    
-    <meta property="og:image" content="https://ronwnor.github.io/this-is-a-canvas/prev.png">
-
-    <script src="main.js" type="text/javascript" defer></script>
-    <title>yee</title>
+    <title>Monke</title>
 </head>
+
 <body>
-    <style>
-        body{
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            padding-left: 20vw;
-            padding-right: 20vw;
-            background-color: #222;
-            color:#fff;
-            text-align: center;
-            font-family: sans-serif;
-            font-weight: lighter;
-            font-size: x-large;
-            letter-spacing: 0.5rem;
-        }
-        h1{
-            font-weight: lighter;
-            margin: 20px 0 0;
-        }
+    <h1>It's le monke</h1>
+    <h3>Look at 'em go!</h3>
+    <img id="leMonke" src="monkes/monke.jpg" alt="Sample Image" onclick="changeImage()">
 
-        p{
-            margin: 20px;
-        }
+    <script>
+        const images = [
+            "monke.jpg",
+            "monke2.jpeg",
+            "monke3.webp",
+            "monke4.jpeg",
+            "monke5.gif"
+        ]
 
-        #glcanvas{
-            background-color: #fff;
-            width: 60vw;
-            height: calc(60vw * 9/16);
-            display: block;
-            margin-top: 30px;
-            box-shadow: 0px 0px 50px #555;
-        }
-        #buttons-wrapper{
-            display: inline-block;
-            margin-right: 0;
-            margin-left: auto;
-            margin-top: 10px;
-        }
-        button{
-            background-color: transparent;
-            width: 180px;
-            height: 50px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px #fff2;
-            border: 1px solid white;
-            color: white;
-            font-size: large;
-            font-weight: lighter;
-            transition: 0.2s;
-        }
-        button:hover{
-            box-shadow: 0px 0px 10px #fff8;
-            background-color: #555;
-            cursor:pointer;
-        }
-        #toast{
-            visibility: hidden;
-            left: 50%;
-            transform: translate(-50%, 0);
-            background-color: #111;
-            border-radius: 5px;
-            padding: 10px 20px;
-            position: fixed;
-            z-index: 1;
-            bottom: 30px;
-            font-size: small;
-            letter-spacing: normal;
-        }
 
-        #toast.show {
-            visibility: visible;
-            -webkit-animation: fadein 0.3s, fadeout 0.5s 2s;
-            animation: fadein 0.3s, fadeout 0.5s 2s;
+        function changeImage() {
+            // get a random index from the images array
+            var randomIndex = Math.floor(Math.random() * images.length);
+            // get the image element by its ID
+            var imgElement = document.getElementById("leMonke");
+            // change the image source to a new URL
+            imgElement.src = "monkes/" + images[randomIndex];
         }
-
-        @-webkit-keyframes fadein {
-            from {bottom: 0; opacity: 0;} 
-            to {bottom: 30px; opacity: 1;}
-        }
-
-        @keyframes fadein {
-            from {bottom: 0; opacity: 0;}
-            to {bottom: 30px; opacity: 1;}
-        }
-
-        @-webkit-keyframes fadeout {
-            from {bottom: 30px; opacity: 1;} 
-            to {bottom: 0; opacity: 0;}
-        }
-
-        @keyframes fadeout {
-            from {bottom: 30px; opacity: 1;}
-            to {bottom: 0; opacity: 0;}
-        }
-        #sauce{
-            letter-spacing: normal;
-            font-weight: normal;
-            font-size: medium;
-            position: absolute;
-            right: 30px;
-            bottom: 5px;
-        }
-    </style>
-    <h1>THIS</h1>
-    <p>is a canvas.</p>
-    <canvas id="glcanvas" width="1200" height="600"> lol your device doesn't support webgl </canvas>
-    <div id="buttons-wrapper">
-        <button id="share-button">share</button>
-        <button id="download-button">download png</button>
-    </div>
-    <div id="toast">copied url to clipboard!</div>
-    <p id="sauce">ronwnor#6285</p>
+    </script>
 </body>
+
 </html>
